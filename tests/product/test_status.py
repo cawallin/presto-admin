@@ -236,21 +236,25 @@ http-server.http.port=8090"""
     def _server_status_with_retries(self, check_connectors=False, extra_arguments=''):
         try:
             return self.retry(lambda: self._get_status_until_coordinator_updated(
-                check_connectors, extra_arguments=extra_arguments), 180, 0)
+                check_connectors, extra_arguments=extra_arguments), 240, 0)
         except PrestoError as e:
             self.assertLazyMessage(
                 self.status_fail_msg(e.message, "Ran out of time retrying status"),
                 self.fail("PrestoError %s" % (e.message,)))
 
     def _get_status_until_coordinator_updated(self, check_connectors=False, extra_arguments=''):
+        print "trying again"
         status_output = self.run_prestoadmin('server status' + extra_arguments)
         if 'the coordinator has not yet discovered this node' in status_output:
+            print "coordinator hasn't discovered the node"
             raise PrestoError('Coordinator has not discovered all nodes yet: '
                               '%s' % status_output)
         if 'Roles: coordinator): Running\n\tNo information available: ' \
            'unable to query coordinator' in status_output:
+            print "unable to query coordinator"
             raise PrestoError('Coordinator not started up properly yet.'
                               '\nOutput: %s' % status_output)
         if check_connectors and 'Connectors:' not in status_output:
+            print "connectors not yet loaded"
             raise PrestoError('Connectors not loaded yet: %s' % status_output)
         return status_output
