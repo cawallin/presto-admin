@@ -28,7 +28,7 @@ from prestoadmin.util.exception import InvalidArgumentError
 
 
 _LOGGER = logging.getLogger(__name__)
-URL_TIMEOUT_MS = 5000
+URL_TIMEOUT_MS = 1000
 NUM_ROWS = 1000
 DATA_RESP = "data"
 NEXT_URI_RESP = "nextUri"
